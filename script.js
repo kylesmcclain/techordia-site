@@ -53,6 +53,7 @@ const icons = {
 };
 
 const servicesGrid = document.querySelector("#servicesGrid");
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 if (servicesGrid) {
   servicesGrid.innerHTML = services
@@ -66,6 +67,10 @@ if (servicesGrid) {
       `
     )
     .join("");
+}
+
+if (!prefersReducedMotion) {
+  document.body.classList.add("motion-ready");
 }
 
 const menuToggle = document.querySelector(".menu-toggle");
@@ -84,3 +89,126 @@ if (menuToggle && navLinks) {
     }
   });
 }
+
+const revealTargets = [
+  ".solution-strip h2",
+  ".audience-tabs span",
+  ".section-intro",
+  ".service-card",
+  ".section-heading",
+  ".industry-grid article",
+  ".process-section .split > div:first-child",
+  ".process-list li",
+  ".proof-copy",
+  ".proof-cards article",
+  ".cta-inner"
+];
+
+const revealElements = document.querySelectorAll(revealTargets.join(","));
+
+revealElements.forEach((element, index) => {
+  element.classList.add("reveal");
+  element.style.transitionDelay = `${Math.min(index % 6, 5) * 55}ms`;
+});
+
+if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+  revealElements.forEach((element) => element.classList.add("is-visible"));
+} else {
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
+  );
+
+  revealElements.forEach((element) => revealObserver.observe(element));
+}
+
+const root = document.documentElement;
+
+const updateScrollMotion = () => {
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+  root.style.setProperty("--scroll-progress", `${progress * 100}%`);
+  root.style.setProperty("--sweep-x", `${-38 + progress * 76}%`);
+  root.style.setProperty("--slash-shift", `${window.scrollY * -0.05}px`);
+  root.style.setProperty("--cta-shift", `${window.scrollY * -0.025}px`);
+};
+
+let scrollQueued = false;
+const queueScrollMotion = () => {
+  if (scrollQueued) return;
+  scrollQueued = true;
+  requestAnimationFrame(() => {
+    updateScrollMotion();
+    scrollQueued = false;
+  });
+};
+
+updateScrollMotion();
+window.addEventListener("scroll", queueScrollMotion, { passive: true });
+window.addEventListener("resize", queueScrollMotion);
+
+const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+if (!prefersReducedMotion && finePointer) {
+  const cursorDot = document.querySelector(".cursor-dot");
+  const cursorRing = document.querySelector(".cursor-ring");
+  let pointerX = window.innerWidth / 2;
+  let pointerY = window.innerHeight / 2;
+  let ringX = pointerX;
+  let ringY = pointerY;
+
+  const moveCursor = () => {
+    ringX += (pointerX - ringX) * 0.18;
+    ringY += (pointerY - ringY) * 0.18;
+
+    if (cursorDot) {
+      cursorDot.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0) translate3d(-50%, -50%, 0)`;
+    }
+
+    if (cursorRing) {
+      cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate3d(-50%, -50%, 0)`;
+    }
+
+    requestAnimationFrame(moveCursor);
+  };
+
+  requestAnimationFrame(moveCursor);
+
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      pointerX = event.clientX;
+      pointerY = event.clientY;
+      document.body.classList.add("cursor-visible");
+      root.style.setProperty("--mouse-shift-x", `${(event.clientX / window.innerWidth - 0.5) * 12}px`);
+      root.style.setProperty("--mouse-shift-y", `${(event.clientY / window.innerHeight - 0.5) * 12}px`);
+    },
+    { passive: true }
+  );
+
+  window.addEventListener("pointerleave", () => {
+    document.body.classList.remove("cursor-visible");
+  });
+
+  document.querySelectorAll("a, button, .service-card, .industry-grid article, .proof-cards article, .process-list li").forEach((element) => {
+    element.addEventListener("pointerenter", () => document.body.classList.add("cursor-active"));
+    element.addEventListener("pointerleave", () => document.body.classList.remove("cursor-active"));
+  });
+}
+
+document.querySelectorAll(".service-card").forEach((card) => {
+  card.addEventListener("pointermove", (event) => {
+    const rect = card.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    card.style.setProperty("--card-x", `${x}%`);
+    card.style.setProperty("--card-y", `${y}%`);
+  });
+});
