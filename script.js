@@ -157,50 +157,14 @@ window.addEventListener("resize", queueScrollMotion);
 const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
 if (!prefersReducedMotion && finePointer) {
-  const cursorDot = document.querySelector(".cursor-dot");
-  const cursorRing = document.querySelector(".cursor-ring");
-  let pointerX = window.innerWidth / 2;
-  let pointerY = window.innerHeight / 2;
-  let ringX = pointerX;
-  let ringY = pointerY;
-
-  const moveCursor = () => {
-    ringX += (pointerX - ringX) * 0.18;
-    ringY += (pointerY - ringY) * 0.18;
-
-    if (cursorDot) {
-      cursorDot.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0) translate3d(-50%, -50%, 0)`;
-    }
-
-    if (cursorRing) {
-      cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate3d(-50%, -50%, 0)`;
-    }
-
-    requestAnimationFrame(moveCursor);
-  };
-
-  requestAnimationFrame(moveCursor);
-
   window.addEventListener(
     "pointermove",
     (event) => {
-      pointerX = event.clientX;
-      pointerY = event.clientY;
-      document.body.classList.add("cursor-visible");
-      root.style.setProperty("--mouse-shift-x", `${(event.clientX / window.innerWidth - 0.5) * 12}px`);
-      root.style.setProperty("--mouse-shift-y", `${(event.clientY / window.innerHeight - 0.5) * 12}px`);
+      root.style.setProperty("--mouse-shift-x", `${(event.clientX / window.innerWidth - 0.5) * 6}px`);
+      root.style.setProperty("--mouse-shift-y", `${(event.clientY / window.innerHeight - 0.5) * 6}px`);
     },
     { passive: true }
   );
-
-  window.addEventListener("pointerleave", () => {
-    document.body.classList.remove("cursor-visible");
-  });
-
-  document.querySelectorAll("a, button, .service-card, .industry-grid article, .proof-cards article, .process-list li").forEach((element) => {
-    element.addEventListener("pointerenter", () => document.body.classList.add("cursor-active"));
-    element.addEventListener("pointerleave", () => document.body.classList.remove("cursor-active"));
-  });
 }
 
 document.querySelectorAll(".service-card").forEach((card) => {
