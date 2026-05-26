@@ -21,17 +21,15 @@ if (menuToggle && navLinks) {
 const revealTargets = document.querySelectorAll(
   [
     ".hero-copy",
-    ".globe-card",
-    ".service-strip a",
-    ".intro-grid > *",
-    ".package-card",
-    ".offering-copy",
-    ".offering-list article",
+    ".globe-stage",
+    ".glance-card",
+    ".consult-panel",
+    ".location-panel",
+    ".package-details article",
+    ".component-grid article",
     ".founder-card",
-    ".founder-grid > div:last-child",
-    ".why-grid article",
-    ".faq-grid > *",
-    ".contact-grid > *"
+    ".faq-card",
+    ".cta-card"
   ].join(",")
 );
 
