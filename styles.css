@@ -1,15 +1,19 @@
 :root {
   --white: #ffffff;
-  --paper: #f6fbff;
-  --wash: #edf8fd;
+  --paper: #071d48;
+  --wash: #082f64;
   --ink: #061846;
-  --muted: #59657a;
-  --line: #dbe8f2;
+  --muted: #b7c8dc;
+  --line: rgba(255, 255, 255, 0.16);
   --blue: #0768d7;
   --cyan: #10b8e6;
   --teal: #18b99b;
   --deep: #032b63;
-  --shadow: 0 24px 68px rgba(5, 38, 79, 0.13);
+  --night: #061846;
+  --night-2: #082b62;
+  --glass: rgba(255, 255, 255, 0.08);
+  --glass-strong: rgba(255, 255, 255, 0.13);
+  --shadow: 0 24px 68px rgba(0, 12, 34, 0.28);
   --scroll-progress: 0%;
   --hero-pointer-x: 72%;
   --hero-pointer-y: 42%;
@@ -34,10 +38,11 @@ html {
 
 body {
   margin: 0;
-  color: var(--ink);
+  color: var(--white);
   background:
-    radial-gradient(circle at 82% 2%, rgba(24, 185, 155, 0.2), transparent 24%),
-    linear-gradient(180deg, #edfaff 0%, #f7fcff 38%, #eefaff 100%);
+    radial-gradient(circle at 84% 5%, rgba(24, 185, 155, 0.24), transparent 28%),
+    radial-gradient(circle at 4% 36%, rgba(7, 104, 215, 0.25), transparent 30%),
+    linear-gradient(180deg, #061846 0%, #072b62 42%, #05556f 100%);
   overflow-x: hidden;
 }
 
@@ -69,8 +74,9 @@ svg {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(90deg, rgba(6, 24, 70, 0.94), rgba(4, 84, 111, 0.9));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(16px);
 }
 
@@ -90,13 +96,14 @@ svg {
 .brand-logo {
   width: clamp(178px, 18vw, 248px);
   height: auto;
+  filter: drop-shadow(0 0 12px rgba(143, 250, 255, 0.28)) drop-shadow(0 2px 6px rgba(0, 8, 28, 0.28));
 }
 
 .nav-links {
   display: flex;
   align-items: center;
   gap: 32px;
-  color: #142653;
+  color: rgba(255, 255, 255, 0.88);
   font-size: 14px;
   font-weight: 750;
 }
@@ -104,16 +111,16 @@ svg {
 .nav-links a:not(.nav-cta):hover,
 .text-link:hover,
 .site-footer a:hover {
-  color: var(--blue);
+  color: #93f7ff;
 }
 
 .menu-toggle {
   display: none;
   width: 42px;
   height: 42px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 5px;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .menu-toggle span {
@@ -121,7 +128,7 @@ svg {
   width: 18px;
   height: 2px;
   margin: 4px auto;
-  background: var(--ink);
+  background: var(--white);
 }
 
 .nav-cta,
@@ -145,14 +152,16 @@ svg {
 }
 
 .button.secondary {
-  color: var(--blue);
-  background: var(--white);
-  border: 1px solid rgba(7, 104, 215, 0.34);
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(12px);
 }
 
 .button.light {
-  color: var(--blue);
-  background: var(--white);
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
 }
 
 .button.ghost {
@@ -196,7 +205,7 @@ svg {
   position: absolute;
   inset: auto -10% -1px -10%;
   height: 120px;
-  background: linear-gradient(180deg, transparent, rgba(237, 250, 255, 0.88));
+  background: linear-gradient(180deg, transparent, rgba(6, 24, 70, 0.92));
   pointer-events: none;
 }
 
@@ -268,7 +277,7 @@ svg {
 .component-grid h3,
 .package-details h3 {
   margin: 0 0 6px;
-  color: var(--ink);
+  color: var(--white);
   font-size: 16px;
 }
 
@@ -286,10 +295,10 @@ svg {
 .big-icon {
   display: grid;
   place-items: center;
-  border: 1px solid rgba(7, 104, 215, 0.35);
+  border: 1px solid rgba(143, 250, 255, 0.38);
   border-radius: 50%;
-  color: var(--blue);
-  background: var(--white);
+  color: #9af7ff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .feature-row .line-icon {
@@ -510,7 +519,9 @@ svg {
 
 .quick-panels {
   padding: 28px 0 18px;
-  background: linear-gradient(180deg, #edfaff, #e4f8ff);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(16, 184, 230, 0.2), transparent 27%),
+    linear-gradient(180deg, #061846, #072b62 54%, #064c6d);
 }
 
 .quick-grid {
@@ -526,19 +537,18 @@ svg {
   grid-template-columns: 74px minmax(0, 1fr);
   gap: 20px;
   align-items: center;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 7px;
   padding: 22px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(221, 250, 255, 0.82)),
-    var(--white);
-  box-shadow: 0 16px 42px rgba(5, 38, 79, 0.08);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(16, 184, 230, 0.08));
+  box-shadow: 0 18px 46px rgba(0, 12, 34, 0.22);
+  backdrop-filter: blur(14px);
 }
 
 .big-icon {
   width: 58px;
   height: 58px;
-  background: #eef7ff;
 }
 
 .quick-grid h2 {
@@ -553,7 +563,7 @@ svg {
 .faq-card p,
 .cta-card p {
   margin: 0;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.76);
   line-height: 1.6;
 }
 
@@ -565,7 +575,7 @@ svg {
 
 .location-panel address {
   grid-column: 2;
-  color: var(--deep);
+  color: rgba(255, 255, 255, 0.86);
   font-style: normal;
   line-height: 1.55;
 }
@@ -624,13 +634,15 @@ svg {
 
 .components-section {
   padding-top: 16px;
+  color: var(--white);
   background:
-    radial-gradient(circle at 8% 18%, rgba(24, 185, 155, 0.16), transparent 28%),
-    linear-gradient(180deg, #e9fbff, #f7fdff);
+    radial-gradient(circle at 8% 18%, rgba(24, 185, 155, 0.24), transparent 28%),
+    radial-gradient(circle at 92% 24%, rgba(16, 184, 230, 0.18), transparent 28%),
+    linear-gradient(180deg, #064c6d, #061846 92%);
 }
 
 .components-section .section-label {
-  color: var(--blue);
+  color: #8ffaff;
 }
 
 .component-grid {
@@ -645,18 +657,18 @@ svg {
   align-content: start;
   justify-items: center;
   text-align: center;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 7px;
   padding: 23px 14px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 18px 44px rgba(5, 38, 79, 0.08);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 44px rgba(0, 12, 34, 0.18);
   backdrop-filter: blur(12px);
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .component-grid article:hover {
-  border-color: rgba(24, 185, 155, 0.44);
-  box-shadow: 0 24px 52px rgba(5, 38, 79, 0.1);
+  border-color: rgba(143, 250, 255, 0.44);
+  box-shadow: 0 24px 52px rgba(0, 12, 34, 0.26);
   transform: translateY(-4px);
 }
 
@@ -729,10 +741,12 @@ svg {
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(7, 104, 215, 0.32);
+  border: 1px solid rgba(143, 250, 255, 0.32);
   border-radius: 50%;
-  color: var(--blue);
-  background: rgba(255, 255, 255, 0.96);
+  color: #9af7ff;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.2), transparent 24%),
+    linear-gradient(135deg, rgba(7, 104, 215, 0.42), rgba(24, 185, 155, 0.28));
 }
 
 .founder-avatar svg {
@@ -757,7 +771,7 @@ svg {
 .text-link {
   display: inline-flex;
   margin-top: 12px;
-  color: var(--blue);
+  color: #93f7ff;
   font-weight: 850;
 }
 
@@ -788,7 +802,9 @@ svg {
 
 .cta-section {
   padding: 46px 0 58px;
-  background: linear-gradient(180deg, #e9fbff, #f7fdff);
+  background:
+    radial-gradient(circle at 78% 22%, rgba(24, 185, 155, 0.24), transparent 30%),
+    linear-gradient(180deg, #061846, #082b62);
 }
 
 .cta-card {
@@ -828,8 +844,9 @@ svg {
 }
 
 .site-footer {
-  border-top: 1px solid var(--line);
-  background: var(--white);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(90deg, rgba(6, 24, 70, 0.98), rgba(4, 84, 111, 0.96));
 }
 
 .footer-grid {
@@ -838,7 +855,7 @@ svg {
   justify-content: space-between;
   align-items: center;
   gap: 22px;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.72);
   font-size: 14px;
 }
 
@@ -956,8 +973,9 @@ svg {
     align-items: stretch;
     gap: 0;
     padding: 12px 20px 22px;
-    border-top: 1px solid var(--line);
-    background: var(--white);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    background:
+      linear-gradient(180deg, rgba(6, 24, 70, 0.98), rgba(4, 84, 111, 0.96));
   }
 
   .nav-links.open {
