@@ -1,12 +1,19 @@
 # Techordia MSP Website
 
-Static marketing site for Techordia, styled around the blue and teal Techordia brand palette with a BACS-inspired MSP page structure.
+Static multi-page marketing site for Techordia, styled around the blue and teal Techordia brand palette with a dark MSP service-site structure.
 
 ## Edit Content
 
-- Core page sections live in `index.html`.
-- Service cards are editable in the `services` array in `script.js`.
-- Colors, spacing, and responsive layout live in `styles.css`.
+- Page content, navigation, services, industries, resources, locations, and footer policy links live in `site-data.mjs`.
+- Generated HTML pages are created by `build-site.mjs`; avoid hand-editing generated `index.html` files unless it is a one-off emergency.
+- Visual styling lives in `styles.css`.
+- Motion, mobile navigation, reveal effects, orbit graphics, and the animated globe live in `script.js`.
+
+After editing `site-data.mjs` or `build-site.mjs`, regenerate the site:
+
+```powershell
+node build-site.mjs
+```
 
 ## Preview
 
