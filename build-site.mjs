@@ -31,7 +31,7 @@ const generatedDirs = [
   "disclosure",
   "trust-and-security"
 ];
-const assetVersion = "20260527-punchy-motion-2";
+const assetVersion = "20260527-punchy-motion-5";
 
 const esc = (value = "") =>
   String(value)

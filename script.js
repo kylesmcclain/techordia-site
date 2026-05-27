@@ -63,27 +63,21 @@ window.addEventListener("scroll", queueScrollProgress, { passive: true });
 window.addEventListener("resize", queueScrollProgress);
 
 if (!prefersReducedMotion) {
-  let pointerQueued = false;
   window.addEventListener(
     "pointermove",
     (event) => {
-      if (pointerQueued) return;
-      pointerQueued = true;
-      requestAnimationFrame(() => {
-        const x = event.clientX / window.innerWidth;
-        const y = event.clientY / window.innerHeight;
-        root.style.setProperty("--pointer-x", `${(x * 100).toFixed(2)}%`);
-        root.style.setProperty("--pointer-y", `${(y * 100).toFixed(2)}%`);
-        const gridX = (x - 0.5) * 28;
-        const gridY = (y - 0.5) * 22;
-        root.style.setProperty("--grid-x", `${gridX.toFixed(2)}px`);
-        root.style.setProperty("--grid-y", `${gridY.toFixed(2)}px`);
-        root.style.setProperty("--grid-x-back", `${(gridX * -0.7).toFixed(2)}px`);
-        root.style.setProperty("--grid-y-back", `${(gridY * -0.7).toFixed(2)}px`);
-        heroGrids.forEach((grid) => {
-          grid.style.transform = `translate3d(${gridX.toFixed(2)}px, ${gridY.toFixed(2)}px, 0)`;
-        });
-        pointerQueued = false;
+      const x = event.clientX / window.innerWidth;
+      const y = event.clientY / window.innerHeight;
+      root.style.setProperty("--pointer-x", `${(x * 100).toFixed(2)}%`);
+      root.style.setProperty("--pointer-y", `${(y * 100).toFixed(2)}%`);
+      const gridX = (x - 0.5) * 28;
+      const gridY = (y - 0.5) * 22;
+      root.style.setProperty("--grid-x", `${gridX.toFixed(2)}px`);
+      root.style.setProperty("--grid-y", `${gridY.toFixed(2)}px`);
+      root.style.setProperty("--grid-x-back", `${(gridX * -0.7).toFixed(2)}px`);
+      root.style.setProperty("--grid-y-back", `${(gridY * -0.7).toFixed(2)}px`);
+      heroGrids.forEach((grid) => {
+        grid.style.transform = `translate3d(${gridX.toFixed(2)}px, ${gridY.toFixed(2)}px, 0)`;
       });
     },
     { passive: true }

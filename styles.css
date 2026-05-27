@@ -1310,16 +1310,35 @@ p {
     display: block;
     min-height: calc(88vh - 78px);
     min-height: calc(88svh - 78px);
-    padding: 70px 0 48px;
+    padding: 54px 0 48px;
+  }
+
+  .home-hero .eyebrow {
+    margin-bottom: 14px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  .home-hero h1 {
+    font-size: 52px;
+  }
+
+  .home-hero .hero-copy > p {
+    font-size: 17px;
+  }
+
+  .home-hero .badge-row,
+  .home-hero .hero-actions {
+    margin-top: 22px;
   }
 
   .home-hero .globe-wrap {
     position: absolute;
-    top: 42px;
-    right: -68px;
-    width: 300px;
-    min-height: 300px;
-    opacity: 0.48;
+    top: 190px;
+    right: -116px;
+    width: 320px;
+    min-height: 320px;
+    opacity: 0.28;
     pointer-events: none;
   }
 
@@ -1388,6 +1407,10 @@ p {
 
   .brand-logo {
     width: 162px;
+  }
+
+  .home-hero h1 {
+    font-size: 46px;
   }
 
   .logo-rail {
