@@ -31,7 +31,7 @@ const generatedDirs = [
   "disclosure",
   "trust-and-security"
 ];
-const assetVersion = "20260526-site-rebuild";
+const assetVersion = "20260526-site-rebuild-2";
 
 const esc = (value = "") =>
   String(value)
@@ -254,7 +254,7 @@ const renderOrbit = () => `
   </div>`;
 
 const renderContactForm = () => `
-  <form class="contact-form" id="contact-form" action="mailto:${site.email}" method="post" enctype="text/plain">
+  <form class="contact-form" id="contact-form" data-contact-form data-contact-email="${site.email}">
     <div class="form-row">
       <label>First Name<span>*</span><input name="First name" required /></label>
       <label>Last Name<span>*</span><input name="Last name" required /></label>

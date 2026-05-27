@@ -89,6 +89,32 @@ if (prefersReducedMotion || !("IntersectionObserver" in window)) {
   revealTargets.forEach((element) => revealObserver.observe(element));
 }
 
+document.querySelectorAll("[data-contact-form]").forEach((form) => {
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const firstName = data.get("First name") || "";
+    const lastName = data.get("Last name") || "";
+    const company = data.get("Company") || "";
+    const employees = data.get("Employees") || "";
+    const email = data.get("Email") || "";
+    const message = data.get("Message") || "";
+    const recipient = form.getAttribute("data-contact-email") || "support@techordia.com";
+    const subject = `Techordia website inquiry from ${company || `${firstName} ${lastName}`.trim() || "new prospect"}`;
+    const body = [
+      `Name: ${firstName} ${lastName}`.trim(),
+      `Company: ${company}`,
+      `Employees: ${employees}`,
+      `Email: ${email}`,
+      "",
+      "Message:",
+      message
+    ].join("\n");
+
+    window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  });
+});
+
 const orbit = document.querySelector("[data-orbit]");
 if (orbit && !prefersReducedMotion) {
   orbit.addEventListener(
