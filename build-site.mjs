@@ -31,7 +31,7 @@ const generatedDirs = [
   "disclosure",
   "trust-and-security"
 ];
-const assetVersion = "20260526-site-rebuild-2";
+const assetVersion = "20260527-punchy-motion-2";
 
 const esc = (value = "") =>
   String(value)
@@ -122,18 +122,21 @@ const renderButton = (root, label, target, variant = "primary") => `<a class="bu
 
 const renderBadgeRow = () => `
   <div class="badge-row" aria-label="Security and privacy focus areas">
+    <span>Support</span>
+    <span>Microsoft 365</span>
     <span>Security</span>
-    <span>Privacy</span>
-    <span>Compliance</span>
-    <span>Continuity</span>
+    <span>Backups</span>
   </div>`;
 
 const renderLogoRail = () => `
   <section class="logo-rail-section" aria-labelledby="trusted-heading">
     <div class="section-inner">
-      <h2 id="trusted-heading">Trusted by Bay Area teams that need IT to work.</h2>
+      <h2 id="trusted-heading">${esc(homePage.sections.trustTitle)}</h2>
       <div class="logo-rail" aria-label="Representative client categories">
-        ${["Housing", "Healthcare", "Professional Services", "SaaS", "Remote Teams", "Nonprofits"].map((name) => `<span>${esc(name)}</span>`).join("")}
+        <div class="logo-track">
+          ${["Housing", "Healthcare", "Professional Services", "SaaS", "Remote Teams", "Nonprofits", "Hybrid Offices", "Growing Teams"].map((name) => `<span>${esc(name)}</span>`).join("")}
+          ${["Housing", "Healthcare", "Professional Services", "SaaS", "Remote Teams", "Nonprofits", "Hybrid Offices", "Growing Teams"].map((name) => `<span>${esc(name)}</span>`).join("")}
+        </div>
       </div>
     </div>
   </section>`;
@@ -163,17 +166,19 @@ const renderServiceCards = (root) => `
   <section class="section package-list" id="services">
     <div class="section-inner">
       <div class="section-heading">
-        <p class="eyebrow">Our IT Service Packages</p>
-        <h2>IT services built around your next stage.</h2>
+        <p class="eyebrow">${esc(homePage.sections.serviceTitle)}</p>
+        <h2>Pick the lane. We handle the IT.</h2>
       </div>
       <div class="service-card-grid">
         ${serviceCards
           .map(
-            (card) => `
-            <a class="service-card reveal" href="${href(root, card.path)}">
-              <span class="card-index">${String(serviceCards.indexOf(card) + 1).padStart(2, "0")}</span>
+            (card, index) => `
+            <a class="service-card reveal tilt-card" href="${href(root, card.path)}">
+              <span class="service-icon" aria-hidden="true"></span>
+              <span class="card-index">${String(index + 1).padStart(2, "0")}</span>
               <h3>${esc(card.title)}</h3>
               <p>${esc(card.summary)}</p>
+              ${card.details ? `<dl class="package-points">${card.details.map(([label, text]) => `<div><dt>${esc(label)}</dt><dd>${esc(text)}</dd></div>`).join("")}</dl>` : ""}
               <span class="text-link">${esc(card.cta)}</span>
             </a>`
           )
@@ -188,7 +193,7 @@ const renderWhy = () => `
       <div>
         <p class="eyebrow">Why Techordia</p>
         <h2>${esc(homePage.sections.whyTitle)}</h2>
-        <p class="section-lead">A managed IT partner should make support clearer, security easier to operate, and growth less chaotic.</p>
+        <p class="section-lead">Support should be easy to ask for, easy to track, and easier to trust.</p>
       </div>
       <div class="proof-grid">
         ${homePage.sections.why.map(([title, text]) => `<article class="proof-card reveal"><h3>${esc(title)}</h3><p>${esc(text)}</p></article>`).join("")}
@@ -234,8 +239,8 @@ const renderCta = (root) => `
     <div class="section-inner cta-panel">
       <div class="cta-icon" aria-hidden="true">T</div>
       <div>
-        <h2>Ready for dependable IT support?</h2>
-        <p>Partner with Techordia for secure, responsive, and proactive IT management.</p>
+        <h2>Ready to quiet the IT noise?</h2>
+        <p>Talk through users, devices, Microsoft 365, risk, and support coverage.</p>
       </div>
       <div class="cta-actions">
         ${renderButton(root, "Book a Consultation", "contact/", "light")}
@@ -250,7 +255,7 @@ const renderOrbit = () => `
     <div class="orbit-ring r2"></div>
     <div class="orbit-ring r3"></div>
     <div class="orbit-center">T</div>
-    ${["lock", "mail", "cloud", "users", "folder", "chat", "shield", "monitor", "chart", "server"].map((label, index) => `<span class="orbit-node n${index + 1}">${label[0].toUpperCase()}</span>`).join("")}
+    ${["Help", "365", "MFA", "Users", "Files", "Mail", "Backup", "RMM", "Risk", "VPN"].map((label, index) => `<span class="orbit-node n${index + 1}" data-label="${esc(label)}"><span>${esc(label.charAt(0))}</span></span>`).join("")}
   </div>`;
 
 const renderContactForm = () => `
@@ -277,7 +282,7 @@ const renderDetailHero = (root, page) => `
         <h1>${esc(page.h1)}</h1>
         <p>${esc(page.kicker || page.intro)}</p>
         <div class="hero-actions">
-          ${renderButton(root, page.contact ? "Let's Talk" : "Book A Free Consultation", page.contact ? "#contact-form" : "contact/")}
+          ${renderButton(root, page.contact ? "Let's Talk" : "Book a Consultation", page.contact ? "#contact-form" : "contact/")}
           ${renderButton(root, "Call Techordia", `tel:+1${site.phone.replaceAll("-", "")}`, "secondary")}
         </div>
       </div>
@@ -296,7 +301,7 @@ const renderPackageDetails = (page) => `
           <h2>${esc(page.benefitsTitle || page.h1)}</h2>
           <p class="section-lead">${esc(page.intro)}</p>
           <div class="detail-grid">
-            ${["What it is", "What's included", "Who it is for", "How it works"].map((label, index) => `<article class="detail-box reveal"><h3>${esc(label)}</h3><p>${esc((page.benefits?.[index]?.[1] || page.kicker || page.intro))}</p></article>`).join("")}
+            ${(page.details || serviceCards.find((card) => card.path === page.path)?.details || page.benefits || []).slice(0, 4).map(([label, text]) => `<article class="detail-box reveal"><h3>${esc(label)}</h3><p>${esc(text)}</p></article>`).join("")}
           </div>
         </div>
         ${renderContactForm()}
@@ -309,7 +314,7 @@ const renderComponents = (components, title = "Key Components") => `
     <div class="section-inner">
       <div class="section-heading">
         <p class="eyebrow">${esc(title)}</p>
-        <h2>Everything needed to keep IT moving.</h2>
+        <h2>The pieces that keep IT moving.</h2>
       </div>
       <div class="component-grid">
         ${components.map(([title, text]) => `<article class="component-card reveal"><div class="line-icon">${esc(title.charAt(0))}</div><h3>${esc(title)}</h3><p>${esc(text)}</p></article>`).join("")}
@@ -368,10 +373,10 @@ const renderHome = (root) => `
   ${renderServiceCards(root)}
   ${renderWhy()}
   ${renderComponents([
-    ["IT Help Desk", "User support, remote sessions, access requests, and daily issue resolution."],
-    ["Cloud Admin", "Microsoft 365, Teams, SharePoint, OneDrive, licensing, and security."],
-    ["Security", "MFA, endpoint protection, email safety, backup, and risk reviews."],
-    ["Projects", "Migrations, office moves, endpoint rollouts, network upgrades, and documentation."]
+    ["Help Desk", "User support, remote sessions, access requests, and daily fixes."],
+    ["Microsoft 365", "Mail, Teams, SharePoint, OneDrive, licensing, and permissions."],
+    ["Security", "MFA, endpoints, email safety, backup checks, and access reviews."],
+    ["Projects", "Migrations, moves, rollouts, network work, and handoff notes."]
   ], "How Techordia Helps")}
   ${renderTestimonials()}
   ${renderFaq(commonFaqs)}

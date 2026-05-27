@@ -4,6 +4,8 @@ const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)
 const menuToggle = document.querySelector(".menu-toggle");
 const navMenu = document.querySelector(".nav-menu");
 const navGroups = document.querySelectorAll(".nav-group");
+const siteHeader = document.querySelector(".site-header");
+const heroGrids = document.querySelectorAll(".hero-grid");
 
 if (menuToggle && navMenu) {
   menuToggle.addEventListener("click", () => {
@@ -42,6 +44,8 @@ const updateScrollProgress = () => {
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
   const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
   root.style.setProperty("--scroll-progress", `${progress * 100}%`);
+  root.style.setProperty("--scroll-y", `${Math.min(progress * 100, 100).toFixed(2)}%`);
+  siteHeader?.classList.toggle("is-scrolled", window.scrollY > 24);
 };
 
 let scrollQueued = false;
@@ -58,6 +62,34 @@ updateScrollProgress();
 window.addEventListener("scroll", queueScrollProgress, { passive: true });
 window.addEventListener("resize", queueScrollProgress);
 
+if (!prefersReducedMotion) {
+  let pointerQueued = false;
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      if (pointerQueued) return;
+      pointerQueued = true;
+      requestAnimationFrame(() => {
+        const x = event.clientX / window.innerWidth;
+        const y = event.clientY / window.innerHeight;
+        root.style.setProperty("--pointer-x", `${(x * 100).toFixed(2)}%`);
+        root.style.setProperty("--pointer-y", `${(y * 100).toFixed(2)}%`);
+        const gridX = (x - 0.5) * 28;
+        const gridY = (y - 0.5) * 22;
+        root.style.setProperty("--grid-x", `${gridX.toFixed(2)}px`);
+        root.style.setProperty("--grid-y", `${gridY.toFixed(2)}px`);
+        root.style.setProperty("--grid-x-back", `${(gridX * -0.7).toFixed(2)}px`);
+        root.style.setProperty("--grid-y-back", `${(gridY * -0.7).toFixed(2)}px`);
+        heroGrids.forEach((grid) => {
+          grid.style.transform = `translate3d(${gridX.toFixed(2)}px, ${gridY.toFixed(2)}px, 0)`;
+        });
+        pointerQueued = false;
+      });
+    },
+    { passive: true }
+  );
+}
+
 const revealTargets = document.querySelectorAll(
   [
     ".reveal",
@@ -70,6 +102,10 @@ const revealTargets = document.querySelectorAll(
     ".person-card"
   ].join(",")
 );
+
+revealTargets.forEach((element, index) => {
+  element.style.setProperty("--reveal-delay", `${Math.min(index % 8, 5) * 55}ms`);
+});
 
 if (prefersReducedMotion || !("IntersectionObserver" in window)) {
   revealTargets.forEach((element) => element.classList.add("is-visible"));
@@ -115,6 +151,33 @@ document.querySelectorAll("[data-contact-form]").forEach((form) => {
   });
 });
 
+if (!prefersReducedMotion) {
+  document.querySelectorAll(".tilt-card").forEach((card) => {
+    card.addEventListener(
+      "pointermove",
+      (event) => {
+        const rect = card.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+        const rotateX = (0.5 - y) * 6;
+        const rotateY = (x - 0.5) * 7;
+        card.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
+        card.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
+        card.style.transform = `translateY(-7px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`;
+      },
+      { passive: true }
+    );
+
+    card.addEventListener(
+      "pointerleave",
+      () => {
+        card.style.transform = "";
+      },
+      { passive: true }
+    );
+  });
+}
+
 const orbit = document.querySelector("[data-orbit]");
 if (orbit && !prefersReducedMotion) {
   orbit.addEventListener(
@@ -149,13 +212,36 @@ const createGlobe = (canvas) => {
     time: 0
   };
 
+  const isLand = (lon, lat) => {
+    const ellipse = (cx, cy, rx, ry) => ((lon - cx) / rx) ** 2 + ((lat - cy) / ry) ** 2 < 1;
+    return (
+      ellipse(-102, 44, 34, 24) ||
+      ellipse(-74, -12, 18, 34) ||
+      ellipse(14, 7, 28, 35) ||
+      ellipse(24, 49, 24, 14) ||
+      ellipse(78, 35, 43, 24) ||
+      ellipse(105, 8, 28, 20) ||
+      ellipse(134, -25, 20, 16) ||
+      ellipse(-42, 72, 28, 10)
+    );
+  };
+
+  const noise = (lat, lon) => {
+    const raw = Math.sin(lat * 12.9898 + lon * 78.233) * 43758.5453;
+    return raw - Math.floor(raw);
+  };
+
   const dots = [];
   for (let lat = -58; lat <= 62; lat += 5.5) {
     const latRad = (lat * Math.PI) / 180;
     const count = Math.max(18, Math.round(Math.cos(latRad) * 74));
     for (let i = 0; i < count; i += 1) {
-      const lon = (i / count) * Math.PI * 2;
-      dots.push({ lat: latRad, lon });
+      const lonDeg = (i / count) * 360 - 180;
+      const land = isLand(lonDeg, lat);
+      const dotNoise = noise(lat, lonDeg);
+      if (land || dotNoise > 0.86) {
+        dots.push({ lat: latRad, lon: (lonDeg * Math.PI) / 180, land, seed: dotNoise });
+      }
     }
   }
 
@@ -264,10 +350,11 @@ const createGlobe = (canvas) => {
     dots.forEach((dot) => {
       const point = project(dot.lat, dot.lon, radius, spin, tilt);
       if (point.z < -0.18) return;
-      const alpha = 0.2 + point.z * 0.44;
-      ctx.fillStyle = `rgba(122, 224, 244, ${Math.max(0.08, alpha).toFixed(3)})`;
+      const twinkle = 0.12 * Math.sin(time * 0.002 + dot.seed * 20);
+      const alpha = (dot.land ? 0.27 : 0.08) + point.z * (dot.land ? 0.5 : 0.18) + twinkle;
+      ctx.fillStyle = `rgba(122, 224, 244, ${Math.max(0.05, alpha).toFixed(3)})`;
       ctx.beginPath();
-      ctx.arc(centerX + point.x, centerY + point.y, Math.max(0.9, point.perspective * 1.45), 0, Math.PI * 2);
+      ctx.arc(centerX + point.x, centerY + point.y, Math.max(0.75, point.perspective * (dot.land ? 1.55 : 1.08)), 0, Math.PI * 2);
       ctx.fill();
     });
 
