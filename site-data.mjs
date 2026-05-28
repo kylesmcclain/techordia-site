@@ -3,19 +3,19 @@ export const site = {
   phone: "877-925-4785",
   email: "support@techordia.com",
   address: "887 Island Drive, Suite C, Alameda, CA 94502",
-  tagline: "Practical IT support for Bay Area teams.",
+  tagline: "Managed IT services for Bay Area SMBs.",
   description:
-    "Techordia provides managed IT, Microsoft 365, cybersecurity, cloud, network, backup, and project support from Alameda.",
+    "Techordia provides managed IT, Microsoft 365, cybersecurity, cloud, server, backup, and project support for Bay Area SMBs from Alameda.",
   logo: "assets/techordia-logo-official.png"
 };
 
 const serviceComponents = [
-  ["Help Desk", "Fast user support, remote sessions, access fixes, and device troubleshooting."],
-  ["Microsoft 365", "Mail, Teams, SharePoint, OneDrive, licensing, permissions, and security."],
-  ["Endpoint Care", "Monitoring, patching, RMM coverage, encryption checks, and remediation."],
-  ["Security", "MFA, endpoint protection, email safety, backup checks, and access reviews."],
-  ["Network Support", "Firewall, Wi-Fi, VPN, switching, servers, and vendor escalation."],
-  ["Documentation", "Clean notes, device records, access paths, and handoff details."]
+  ["Help Desk", "Responsive user support, remote sessions, access fixes, and daily troubleshooting."],
+  ["Emergency Support", "Urgent issue response for downtime, access loss, outages, and critical blockers."],
+  ["Cloud Services", "Microsoft 365, Teams, SharePoint, OneDrive, licensing, permissions, and security."],
+  ["Server Management", "Windows Server, identity, patching, monitoring, vendors, and infrastructure support."],
+  ["Backups & Recovery", "Backup coverage checks, restore expectations, continuity planning, and recovery support."],
+  ["Security", "MFA, endpoint protection, email safety, access reviews, and risk cleanup."]
 ];
 
 const commonFaqs = [
@@ -134,21 +134,31 @@ export const homePage = {
   title: "Techordia | Managed IT Services, IT Support, IT Consulting",
   description: site.description,
   hero: {
-    eyebrow: "Alameda-born IT support",
+    eyebrow: "Managed IT services for Bay Area small and midsize businesses.",
     title: "Fast Support. Clean Systems. Less IT Noise.",
-    text: "Techordia keeps users, devices, Microsoft 365, security, and projects moving for Bay Area teams.",
+    text: "Techordia helps Bay Area SMBs stay productive with responsive IT support, Microsoft 365 management, security, backups, and day-to-day operational support.",
     primary: "Book a Consultation",
-    secondary: "See Our Services"
+    secondary: "See How We Help",
+    microcopy:
+      "Book a consultation to review your current IT setup and identify support, security, or infrastructure gaps.",
+    proof: [
+      "Serving SMBs since 2010",
+      "Help desk and emergency support",
+      "Cloud, server, and security expertise"
+    ],
+    location: "Based in Alameda, serving Bay Area businesses"
   },
   sections: {
-    trustTitle: "Built for Bay Area teams that need IT handled.",
+    trustTitle: "Supporting SMBs since 2010.",
     serviceTitle: "Four Simple Ways We Help",
-    whyTitle: "Why Teams Choose Techordia",
+    outcome:
+      "We help your team stay productive, reduce downtime, and keep critical systems supported as your business grows.",
+    whyTitle: "Why Techordia",
     why: [
-      ["Fast answers", "Users know where to go and what happens next."],
-      ["Clean handoffs", "Tickets, devices, vendors, and access stay documented."],
-      ["Local ownership", "Alameda-based support with Bay Area context."],
-      ["Security built in", "Identity, endpoints, email, backup, and access stay on the radar."]
+      ["Fast response", "Support for users, devices, access, and urgent issues."],
+      ["Clean systems", "Microsoft 365, servers, backups, and endpoints kept organized."],
+      ["Local ownership", "Alameda-based support for Bay Area SMBs."],
+      ["Security built in", "Identity, email, devices, and backups stay covered."]
     ],
     testimonials: [
       ["Support that moves", "Issues get routed, worked, and documented without extra noise."],

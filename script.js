@@ -172,78 +172,62 @@ if (!prefersReducedMotion) {
   });
 }
 
-const orbit = document.querySelector("[data-orbit]");
-if (orbit && !prefersReducedMotion) {
-  orbit.addEventListener(
-    "pointermove",
-    (event) => {
-      const rect = orbit.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width - 0.5;
-      const y = (event.clientY - rect.top) / rect.height - 0.5;
-      orbit.style.transform = `rotateX(${(-y * 9).toFixed(2)}deg) rotateY(${(x * 11).toFixed(2)}deg) translate3d(${(x * 18).toFixed(2)}px, ${(y * 14).toFixed(2)}px, 0)`;
-    },
-    { passive: true }
-  );
+if (!prefersReducedMotion) {
+  document.querySelectorAll("[data-service-map]").forEach((map) => {
+    map.addEventListener(
+      "pointermove",
+      (event) => {
+        const rect = map.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+        map.style.setProperty("--map-x", `${(x * 100).toFixed(1)}%`);
+        map.style.setProperty("--map-y", `${(y * 100).toFixed(1)}%`);
+        map.style.transform = `translateY(-4px) rotateX(${((0.5 - y) * 3).toFixed(2)}deg) rotateY(${((x - 0.5) * 4).toFixed(2)}deg)`;
+      },
+      { passive: true }
+    );
 
-  orbit.addEventListener(
-    "pointerleave",
-    () => {
-      orbit.style.transform = "";
-    },
-    { passive: true }
-  );
+    map.addEventListener(
+      "pointerleave",
+      () => {
+        map.style.transform = "";
+      },
+      { passive: true }
+    );
+  });
 }
 
-const createGlobe = (canvas) => {
+const createCoverage = (canvas) => {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
   const state = {
-    pointerX: 0.12,
-    pointerY: -0.08,
-    targetX: 0.12,
-    targetY: -0.08,
-    time: 0
+    pointerX: 0.5,
+    pointerY: 0.45,
+    targetX: 0.5,
+    targetY: 0.45
   };
 
-  const isLand = (lon, lat) => {
-    const ellipse = (cx, cy, rx, ry) => ((lon - cx) / rx) ** 2 + ((lat - cy) / ry) ** 2 < 1;
-    return (
-      ellipse(-102, 44, 34, 24) ||
-      ellipse(-74, -12, 18, 34) ||
-      ellipse(14, 7, 28, 35) ||
-      ellipse(24, 49, 24, 14) ||
-      ellipse(78, 35, 43, 24) ||
-      ellipse(105, 8, 28, 20) ||
-      ellipse(134, -25, 20, 16) ||
-      ellipse(-42, 72, 28, 10)
-    );
-  };
+  const nodes = [
+    { label: "Alameda", x: 0.5, y: 0.52, size: 18, hub: true },
+    { label: "Help Desk", x: 0.2, y: 0.26, size: 9 },
+    { label: "Emergency", x: 0.75, y: 0.2, size: 9 },
+    { label: "Cloud", x: 0.82, y: 0.48, size: 10 },
+    { label: "Servers", x: 0.26, y: 0.72, size: 10 },
+    { label: "Security", x: 0.64, y: 0.78, size: 9 },
+    { label: "Backups", x: 0.42, y: 0.18, size: 8 }
+  ];
 
-  const noise = (lat, lon) => {
-    const raw = Math.sin(lat * 12.9898 + lon * 78.233) * 43758.5453;
-    return raw - Math.floor(raw);
-  };
-
-  const dots = [];
-  for (let lat = -58; lat <= 62; lat += 5.5) {
-    const latRad = (lat * Math.PI) / 180;
-    const count = Math.max(18, Math.round(Math.cos(latRad) * 74));
-    for (let i = 0; i < count; i += 1) {
-      const lonDeg = (i / count) * 360 - 180;
-      const land = isLand(lonDeg, lat);
-      const dotNoise = noise(lat, lonDeg);
-      if (land || dotNoise > 0.86) {
-        dots.push({ lat: latRad, lon: (lonDeg * Math.PI) / 180, land, seed: dotNoise });
-      }
-    }
-  }
-
-  const routes = [
-    { from: [-122.42, 37.77], to: [-74.0, 40.71], phase: 0 },
-    { from: [-122.42, 37.77], to: [-0.12, 51.5], phase: 0.28 },
-    { from: [-122.42, 37.77], to: [139.69, 35.68], phase: 0.54 },
-    { from: [-122.42, 37.77], to: [-46.63, -23.55], phase: 0.76 }
+  const links = [
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [0, 4],
+    [0, 5],
+    [0, 6],
+    [1, 6],
+    [3, 5],
+    [4, 5]
   ];
 
   const resize = () => {
@@ -254,126 +238,122 @@ const createGlobe = (canvas) => {
     ctx.setTransform(scale, 0, 0, scale, 0, 0);
   };
 
-  const project = (lat, lon, radius, spin, tilt) => {
-    const adjustedLon = lon + spin;
-    const x = Math.cos(lat) * Math.sin(adjustedLon);
-    let y = Math.sin(lat);
-    let z = Math.cos(lat) * Math.cos(adjustedLon);
-
-    const ty = y * Math.cos(tilt) - z * Math.sin(tilt);
-    const tz = y * Math.sin(tilt) + z * Math.cos(tilt);
-    y = ty;
-    z = tz;
-
-    const perspective = 0.72 + z * 0.28;
-    return {
-      x: x * radius * perspective,
-      y: y * radius * perspective,
-      z,
-      perspective
-    };
-  };
-
-  const coords = ([lon, lat]) => [(lon * Math.PI) / 180, (lat * Math.PI) / 180];
-
-  const drawArc = (route, centerX, centerY, radius, spin, tilt, time) => {
-    const [lonA, latA] = coords(route.from);
-    const [lonB, latB] = coords(route.to);
-    const steps = 46;
-    const points = [];
-
-    for (let i = 0; i <= steps; i += 1) {
-      const t = i / steps;
-      const lat = latA + (latB - latA) * t + Math.sin(t * Math.PI) * 0.22;
-      const lon = lonA + (lonB - lonA) * t;
-      points.push(project(lat, lon, radius, spin, tilt));
-    }
+  const drawNode = (node, time, width, height) => {
+    const driftX = (state.pointerX - 0.5) * (node.hub ? 12 : 22);
+    const driftY = (state.pointerY - 0.45) * (node.hub ? 10 : 18);
+    const x = node.x * width + driftX;
+    const y = node.y * height + driftY;
+    const pulse = node.hub ? 1 + Math.sin(time * 0.003) * 0.04 : 1;
 
     ctx.beginPath();
-    points.forEach((point, index) => {
-      const x = centerX + point.x;
-      const y = centerY + point.y;
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.strokeStyle = "rgba(16, 184, 230, 0.55)";
-    ctx.lineWidth = 1.6;
+    ctx.arc(x, y, node.size * pulse + 18, 0, Math.PI * 2);
+    ctx.fillStyle = node.hub ? "rgba(16, 184, 230, 0.13)" : "rgba(8, 117, 222, 0.08)";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(x, y, node.size * pulse, 0, Math.PI * 2);
+    ctx.fillStyle = node.hub ? "#10b8e6" : "#ffffff";
+    ctx.strokeStyle = node.hub ? "#0875de" : "rgba(8, 117, 222, 0.45)";
+    ctx.lineWidth = node.hub ? 3 : 2;
+    ctx.fill();
     ctx.stroke();
 
-    const pulse = (time * 0.00022 + route.phase) % 1;
-    const point = points[Math.floor(pulse * (points.length - 1))];
-    ctx.beginPath();
-    ctx.arc(centerX + point.x, centerY + point.y, 3.5, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(233, 248, 255, 0.92)";
-    ctx.fill();
+    ctx.font = node.hub ? "800 16px Inter, sans-serif" : "750 13px Inter, sans-serif";
+    ctx.fillStyle = "#0b2a42";
+    ctx.textAlign = "center";
+    ctx.fillText(node.label, x, y + node.size + 28);
+
+    return { x, y };
+  };
+
+  let queuedStaticFrame = false;
+  const queueStaticDraw = () => {
+    if (!prefersReducedMotion || queuedStaticFrame) return;
+    queuedStaticFrame = true;
+    requestAnimationFrame((time) => {
+      queuedStaticFrame = false;
+      draw(time);
+    });
   };
 
   const draw = (time) => {
-    state.time = time;
-    state.pointerX += (state.targetX - state.pointerX) * 0.07;
-    state.pointerY += (state.targetY - state.pointerY) * 0.07;
+    if (prefersReducedMotion) {
+      state.pointerX = state.targetX;
+      state.pointerY = state.targetY;
+    } else {
+      state.pointerX += (state.targetX - state.pointerX) * 0.08;
+      state.pointerY += (state.targetY - state.pointerY) * 0.08;
+    }
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    const centerX = width * 0.52;
-    const centerY = height * 0.52;
-    const radius = Math.min(width, height) * 0.38;
-    const spin = time * 0.00008 + state.pointerX * 0.55;
-    const tilt = -0.16 + state.pointerY * 0.35;
-
     ctx.clearRect(0, 0, width, height);
 
-    const glow = ctx.createRadialGradient(centerX, centerY, radius * 0.18, centerX, centerY, radius * 1.15);
-    glow.addColorStop(0, "rgba(16, 184, 230, 0.28)");
-    glow.addColorStop(0.48, "rgba(25, 185, 156, 0.12)");
-    glow.addColorStop(1, "rgba(5, 6, 7, 0)");
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius * 1.24, 0, Math.PI * 2);
-    ctx.fill();
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+    gradient.addColorStop(1, "rgba(222, 247, 252, 0.82)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
 
-    const sphere = ctx.createRadialGradient(centerX - radius * 0.28, centerY - radius * 0.28, radius * 0.08, centerX, centerY, radius);
-    sphere.addColorStop(0, "rgba(16, 184, 230, 0.3)");
-    sphere.addColorStop(0.52, "rgba(6, 36, 63, 0.72)");
-    sphere.addColorStop(1, "rgba(1, 20, 34, 0.98)");
-    ctx.fillStyle = sphere;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    ctx.fill();
-
-    dots.forEach((dot) => {
-      const point = project(dot.lat, dot.lon, radius, spin, tilt);
-      if (point.z < -0.18) return;
-      const twinkle = 0.12 * Math.sin(time * 0.002 + dot.seed * 20);
-      const alpha = (dot.land ? 0.27 : 0.08) + point.z * (dot.land ? 0.5 : 0.18) + twinkle;
-      ctx.fillStyle = `rgba(122, 224, 244, ${Math.max(0.05, alpha).toFixed(3)})`;
+    ctx.save();
+    ctx.globalAlpha = 0.7;
+    ctx.strokeStyle = "rgba(8, 117, 222, 0.08)";
+    ctx.lineWidth = 1;
+    for (let x = 32; x < width; x += 56) {
       ctx.beginPath();
-      ctx.arc(centerX + point.x, centerY + point.y, Math.max(0.75, point.perspective * (dot.land ? 1.55 : 1.08)), 0, Math.PI * 2);
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    for (let y = 32; y < height; y += 56) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    const points = nodes.map((node) => ({
+      x: node.x * width + (state.pointerX - 0.5) * (node.hub ? 12 : 22),
+      y: node.y * height + (state.pointerY - 0.45) * (node.hub ? 10 : 18)
+    }));
+
+    links.forEach(([from, to], index) => {
+      const a = points[from];
+      const b = points[to];
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo((a.x + b.x) / 2, (a.y + b.y) / 2 - 32, b.x, b.y);
+      ctx.strokeStyle = index % 2 ? "rgba(25, 185, 156, 0.34)" : "rgba(8, 117, 222, 0.32)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const t = (time * 0.00018 + index * 0.13) % 1;
+      const cx = (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * ((a.x + b.x) / 2) + t * t * b.x;
+      const cy = (1 - t) * (1 - t) * a.y + 2 * (1 - t) * t * ((a.y + b.y) / 2 - 32) + t * t * b.y;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = "#19b99c";
       ctx.fill();
     });
 
-    routes.forEach((route) => drawArc(route, centerX, centerY, radius, spin, tilt, time));
-
-    ctx.beginPath();
-    ctx.arc(centerX - radius * 0.22 + state.pointerX * 18, centerY - radius * 0.38 + state.pointerY * 16, radius * 0.1, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.82)";
-    ctx.shadowBlur = 30;
-    ctx.shadowColor = "rgba(154, 247, 255, 0.78)";
-    ctx.fill();
-    ctx.shadowBlur = 0;
+    nodes.forEach((node) => drawNode(node, time, width, height));
 
     if (!prefersReducedMotion) requestAnimationFrame(draw);
   };
 
   resize();
+  canvas.dataset.coverageReady = "true";
   window.addEventListener("resize", resize);
 
   canvas.addEventListener(
     "pointermove",
     (event) => {
       const rect = canvas.getBoundingClientRect();
-      state.targetX = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
-      state.targetY = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+      state.targetX = (event.clientX - rect.left) / rect.width;
+      state.targetY = (event.clientY - rect.top) / rect.height;
+      canvas.dataset.coveragePointer = `${state.targetX.toFixed(3)},${state.targetY.toFixed(3)}`;
+      queueStaticDraw();
     },
     { passive: true }
   );
@@ -381,8 +361,10 @@ const createGlobe = (canvas) => {
   canvas.addEventListener(
     "pointerleave",
     () => {
-      state.targetX = 0.12;
-      state.targetY = -0.08;
+      state.targetX = 0.5;
+      state.targetY = 0.45;
+      canvas.dataset.coveragePointer = "0.500,0.450";
+      queueStaticDraw();
     },
     { passive: true }
   );
@@ -390,4 +372,4 @@ const createGlobe = (canvas) => {
   requestAnimationFrame(draw);
 };
 
-document.querySelectorAll("[data-globe]").forEach((canvas) => createGlobe(canvas));
+document.querySelectorAll("[data-coverage]").forEach((canvas) => createCoverage(canvas));
